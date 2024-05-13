@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 def iniciar_entrenamiento():
     nombre = nombre_entry.get()
-    dir_faces = r'C:\Users\carlo\OneDrive\Escritorio\cara'
+    dir_faces = r'C:\Users\ASUS\Desktop\cara'
     path = os.path.join(dir_faces, nombre)
     size = 4
 
@@ -35,8 +35,9 @@ def iniciar_entrenamiento():
             face = gray[y:y + h, x:x + w]
             face_resize = cv2.resize(face, (img_width, img_height))
         
-            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 3)
-            cv2.putText(img, nombre, (x - 10, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0))        
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 3)
+            cv2.putText(img, 'Reconociendo a '+nombre, (x - 10,
+                        y - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0))
 
             pin = sorted([int(n[:n.find('.')]) for n in os.listdir(path) if n[0] != '.'] + [0])[-1] + 1
             cv2.imwrite('%s/%s.png' % (path, pin), face_resize)
@@ -73,7 +74,7 @@ def iniciar_reconocimiento():
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
     cap = cv2.VideoCapture(0)
 
-    dir_faces = r'C:\Users\carlo\OneDrive\Escritorio\cara'
+    dir_faces = r'C:\Users\ASUS\Desktop\cara'
     size = 4
 
     (images, labels, names, id) = ([], [], {}, 0)
@@ -116,17 +117,26 @@ def iniciar_reconocimiento():
             face_resize = cv2.resize(face, (im_width, im_height))
 
             prediction = model.predict(face_resize)
-
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-
             cara = '%s' % (names[prediction[0]])
+            if prediction[1] < 50:
+                color = (0, 0, 255)
 
-            if prediction[1] < 100:
-                cv2.putText(frame, '%s - %.0f' % (cara, prediction[1]), (x - 10, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0))
+                cv2.putText(frame, '%s - %.0f' % ('No te pareces a '+cara,
+                            prediction[1]), (x - 10, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, color)
+            elif prediction[1] < 80 and prediction[1] > 50:
+                color = (255, 0, 0)
+                cv2.putText(frame, '%s - %.0f' % ('Te pareces a '+cara,
+                            prediction[1]), (x - 10, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, color)
+            else:
+                color = (0, 255, 0)
+                cv2.putText(frame, '%s - %.0f' % (cara,
+                            prediction[1]), (x - 10, y - 10), cv2.FONT_HERSHEY_PLAIN, 1, color)
 
-                generar_informe(cara, 1)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 3)
 
-        cv2.imshow('OpenCV Reconocimiento facial', frame)
+ # generar_informe(cara, 1)
+
+        cv2.imshow('Reconocimiento facial', frame)
 
         key = cv2.waitKey(10)
         if key == 27:
