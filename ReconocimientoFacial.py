@@ -1,13 +1,34 @@
+import json
 import tkinter as tk
+from tkinter import messagebox
 import cv2
 import os
 import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
+import getpass
+
+
+def cargar_configuracion():
+    with open('config.json') as config_file:
+        configuracion = json.load(config_file)
+    return configuracion
 
 def iniciar_entrenamiento():
+
+    # Cargar la configuración
+    configuracion = cargar_configuracion()
+    # Obtener la ruta de la carpeta de caras del usuario actual
+    dir_faces = configuracion[getpass.getuser()]["dir_faces"]
+
     nombre = nombre_entry.get()
-    dir_faces = r'C:\Users\ASUS\Desktop\cara'
+
+    if not nombre:
+        messagebox.showwarning("Advertencia", "Por favor ingrese un nombre.")
+        return
+    
+
+    # dir_faces = r'C:\Users\ASUS\Desktop\cara'
     path = os.path.join(dir_faces, nombre)
     size = 4
 
@@ -62,19 +83,24 @@ def cerrar_camara():
 
 def iniciar_reconocimiento():
 
+    # Cargar la configuración
+    configuracion = cargar_configuracion()
+    # Obtener la ruta de la carpeta de caras del usuario actual
+    dir_faces = configuracion[getpass.getuser()]["dir_faces"]
+
     def cerrar_ventana_camara():
         cap.release()  # Liberar la captura de video
         cv2.destroyAllWindows()  # Cerrar todas las ventanas de OpenCV
 
     metodo_seleccionado = metodo_var.get()
-    if metodo_seleccionado == 0:
-        print("No se ha seleccionado un método o parametro de reconocimiento facial.")
+    if metodo_var.get() == 0:
+        messagebox.showwarning("Advertencia", "Por favor seleccione un tipo de algoritmo de reconocimiento.")
         return
     
     face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
     cap = cv2.VideoCapture(0)
 
-    dir_faces = r'C:\Users\ASUS\Desktop\cara'
+    # dir_faces = r'C:\Users\ASUS\Desktop\cara'
     size = 4
 
     (images, labels, names, id) = ([], [], {}, 0)
@@ -134,20 +160,23 @@ def iniciar_reconocimiento():
 
             cv2.rectangle(frame, (x, y), (x + w, y + h), color, 3)
 
- # generar_informe(cara, 1)
-
+    # generar_informe(cara, 1)
+        
         cv2.imshow('Reconocimiento facial', frame)
+        
 
         key = cv2.waitKey(10)
         if key == 27:
             cv2.destroyAllWindows()
             break
 
-def generar_informe(nombre, cantidad):
+    generar_informe(cara, 1, prediction[1])
+
+def generar_informe(nombre, cantidad, valor_prediccion):
     fecha_actual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     informe = f'Fecha y hora de deteccion: {fecha_actual}\n'
     informe += f'Nombre del usuario reconocido: {nombre}\n'
-    informe += f'Cantidad de detecciones: {cantidad}\n\n'
+    informe += f'Numero de prediccion: {valor_prediccion}\n\n'
 
     with open('informe_reconocimiento.txt', 'a') as file:
         file.write(informe)

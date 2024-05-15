@@ -1,4 +1,4 @@
-Fecha y hora de deteccion: 2024-05-13 17:20:05
-Nombre del usuario reconocido: Ken
-Cantidad de detecciones: 100
+Fecha y hora de deteccion: 2024-05-14 22:55:26
+Nombre del usuario reconocido: Carlos
+Numero de prediccion: 97.1097336133038
 
